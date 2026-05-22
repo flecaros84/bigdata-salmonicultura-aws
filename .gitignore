@@ -1,0 +1,57 @@
+# Environment variables / credentials
+.env
+*.env
+!.env.example
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Raw/local datasets and heavy generated data
+data/
+
+# Local model binaries can be heavy or environment-specific
+models/*.joblib
+models/*.pkl
+
+# Keep model metrics if they are small and useful
+!models/*.json
+
+# Keep final dashboard/export outputs if useful for professor
+# Do NOT ignore outputs/
+# Do NOT ignore screenshots/
+# Do NOT ignore docs/
+
+# Optional: ignore dashboard folder only if it contains large temporary CSVs
+# dashboard/
+
+# AWS local credentials/config, if accidentally created
+.aws/
+credentials
+config
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs and temp files
+*.log
+tmp/
+temp/
+*.tmp
+
+docs/
+
+# Large dashboard export
+dashboard/productive_kpi_processed.csv
