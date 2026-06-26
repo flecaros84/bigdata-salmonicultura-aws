@@ -1,4 +1,3 @@
-````markdown
 # Big Data Salmonicultura AWS
 
 Proyecto académico de Big Data aplicado a datos productivos históricos de centros de cultivo salmonero.
@@ -539,4 +538,3 @@ python -m pipeline.run_end_to_end_pipeline \
   --interval-seconds 1 \
   --streaming-upload-every 5
 ```
-````
