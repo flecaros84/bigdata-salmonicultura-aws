@@ -58,3 +58,7 @@ docs/Evaluacion_Sumativa_2_BigData_GSP823_DUOC.pdf
 dashboard/productive_kpi_processed.csv
 
 outputs/
+# Grafana local outputs
+data/grafana/*.db
+outputs/grafana_sync/
+
