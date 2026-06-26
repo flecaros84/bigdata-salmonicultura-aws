@@ -142,32 +142,37 @@ def run_streaming_simulator(
     endpoint_name: str,
     events: int,
     interval_seconds: float,
+    upload_every: int,
     logger: logging.Logger,
 ) -> str:
     """
     Ejecuta el simulador streaming contra el endpoint SageMaker.
 
-    El simulador:
-    - genera eventos productivos;
-    - calcula features;
-    - invoca el endpoint;
-    - guarda CSV/JSONL;
-    - sube resultados a S3.
+    El parámetro upload_every permite subir resultados parciales a S3 cada N
+    eventos. Esto facilita una demostración con Grafana, porque los archivos
+    de salida se van actualizando mientras el simulador corre.
     """
     logger.info("[START] Ejecutando simulador streaming")
 
+    command = [
+        sys.executable,
+        "-u",
+        "streaming/simulate_streaming_inference.py",
+        "--endpoint-name",
+        endpoint_name,
+        "--events",
+        str(events),
+        "--interval-seconds",
+        str(interval_seconds),
+        "--upload-s3",
+    ]
+
+    # Si upload_every es mayor a 0, se activa la carga incremental a S3.
+    if upload_every > 0:
+        command.extend(["--upload-every", str(upload_every)])
+
     output = run_command(
-        [
-            sys.executable,
-            "streaming/simulate_streaming_inference.py",
-            "--endpoint-name",
-            endpoint_name,
-            "--events",
-            str(events),
-            "--interval-seconds",
-            str(interval_seconds),
-            "--upload-s3",
-        ],
+        command,
         logger=logger,
     )
 

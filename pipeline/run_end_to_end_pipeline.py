@@ -56,6 +56,7 @@ def build_initial_summary(
     events: int,
     interval_seconds: float,
     skip_notebooks: bool,
+    streaming_upload_every: int,
 ) -> Dict[str, Any]:
     """
     Construye el resumen inicial de la corrida.
@@ -71,6 +72,7 @@ def build_initial_summary(
         "bucket": bucket,
         "events_requested": events,
         "interval_seconds": interval_seconds,
+        "streaming_upload_every": streaming_upload_every,
         "skip_notebooks": skip_notebooks,
         "endpoint_name": None,
         "s3_checks": {},
@@ -108,6 +110,11 @@ def main() -> None:
     parser.add_argument("--interval-seconds", type=float, default=1.0)
     parser.add_argument("--notebook-timeout", type=int, default=-1)
 
+    # Permite que el simulador suba resultados parciales a S3 cada N eventos.
+    # Es útil para demos con Grafana, porque los datos se actualizan durante
+    # la ejecución y no solo al final.
+    parser.add_argument("--streaming-upload-every", type=int, default=0)
+
     # Permite ejecutar solo SageMaker + streaming sin volver a correr notebooks.
     parser.add_argument("--skip-notebooks", action="store_true")
 
@@ -130,6 +137,7 @@ def main() -> None:
         events=args.events,
         interval_seconds=args.interval_seconds,
         skip_notebooks=args.skip_notebooks,
+        streaming_upload_every=args.streaming_upload_every,
     )
 
     logger.info("[START] Pipeline end-to-end salmonicultura")
@@ -200,6 +208,7 @@ def main() -> None:
             endpoint_name=endpoint_name,
             events=args.events,
             interval_seconds=args.interval_seconds,
+            upload_every=args.streaming_upload_every,
             logger=logger,
         )
 

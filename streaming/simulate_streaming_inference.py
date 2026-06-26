@@ -210,20 +210,28 @@ def append_csv(path: Path, record: Dict[str, Any]) -> None:
 def upload_outputs_to_s3(
     bucket: str,
     s3_prefix: str,
+    run_id: str,
     jsonl_path: Path,
     csv_path: Path,
+    upload_label: str,
 ) -> None:
+    """
+    Sube los archivos de salida del simulador a S3.
+
+    Se usa un mismo run_id durante toda la ejecución para que las cargas
+    incrementales vayan sobrescribiendo los mismos archivos. Esto permite que
+    una herramienta externa, como Grafana o un exporter, lea siempre la versión
+    más reciente del CSV/JSONL.
+    """
     s3 = boto3.client("s3")
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-
-    jsonl_key = f"{s3_prefix}/run_{timestamp}/inference_events.jsonl"
-    csv_key = f"{s3_prefix}/run_{timestamp}/inference_events.csv"
+    jsonl_key = f"{s3_prefix}/{run_id}/inference_events.jsonl"
+    csv_key = f"{s3_prefix}/{run_id}/inference_events.csv"
 
     s3.upload_file(str(jsonl_path), bucket, jsonl_key)
     s3.upload_file(str(csv_path), bucket, csv_key)
 
-    print("Archivos subidos a S3:")
+    print(f"Archivos subidos a S3 ({upload_label}):")
     print(f"s3://{bucket}/{jsonl_key}")
     print(f"s3://{bucket}/{csv_key}")
 
@@ -244,9 +252,13 @@ def run_simulation(
     bucket: str,
     s3_prefix: str,
     dry_run: bool,
+    upload_every: int,
 ) -> None:
     jsonl_path = output_dir / "inference_events.jsonl"
     csv_path = output_dir / "inference_events.csv"
+    # Identificador único de la corrida streaming.
+    # Se usa tanto para trazabilidad como para construir la carpeta S3.
+    run_id = datetime.now(timezone.utc).strftime("run_%Y%m%d_%H%M%S")
 
     print("Iniciando simulador de inferencia streaming")
     print(f"Endpoint SageMaker: {endpoint_name}")
@@ -255,6 +267,8 @@ def run_simulation(
     print(f"Intervalo segundos: {interval_seconds}")
     print(f"Salida JSONL: {jsonl_path}")
     print(f"Salida CSV: {csv_path}")
+    print(f"Run streaming: {run_id}")
+    print(f"Subida incremental cada N eventos: {upload_every if upload_every > 0 else 'solo al final'}")
 
     event_counter = 0
 

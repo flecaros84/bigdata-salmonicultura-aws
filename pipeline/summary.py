@@ -19,10 +19,18 @@ def extract_s3_paths_from_output(output: str) -> List[str]:
     """
     Extrae rutas S3 desde una salida de consola.
 
-    Se usa para capturar automáticamente las rutas que imprime el simulador
-    cuando sube resultados a S3.
+    Como en modo incremental el simulador puede imprimir las mismas rutas varias
+    veces, se eliminan duplicados manteniendo el orden de aparición.
     """
-    return re.findall(r"s3://[^\s]+", output)
+    paths = re.findall(r"s3://[^\s]+", output)
+
+    unique_paths: List[str] = []
+
+    for path in paths:
+        if path not in unique_paths:
+            unique_paths.append(path)
+
+    return unique_paths
 
 
 def write_summary(run_dir: Path, summary: Dict[str, Any]) -> Path:
