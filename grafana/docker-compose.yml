@@ -1,0 +1,15 @@
+services:
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: salmonicultura-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_PLUGINS_PREINSTALL: frser-sqlite-datasource
+      GF_USERS_DEFAULT_THEME: light
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
+      - ./dashboards:/var/lib/grafana/dashboards
+      - ../data/grafana:/var/lib/grafana/sqlite
