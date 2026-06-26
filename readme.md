@@ -115,3 +115,12 @@ S3 RAW → Athena RAW → PySpark → S3 processed → Athena DW → ML básico 
 ```
 
 Aunque se trata de una implementación acotada, el trabajo valida la metodología de procesamiento batch y deja una base ampliable para incorporar mayor volumen de datos, sensores, eventos de alimentación y modelos predictivos más robustos.
+
+
+# Por Mejorar:
+
+- Jupyter Lab: Notebook en AWS.
+
+- SageMaker: Modelos de machine learning en la nube.
+
+- Graffana: Simulación Tiempo Real Dashboard

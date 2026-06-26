@@ -51,7 +51,8 @@ tmp/
 temp/
 *.tmp
 
-docs/
+docs/informe_P01.md
+docs/Evaluacion_Sumativa_2_BigData_GSP823_DUOC.pdf
 
 # Large dashboard export
 dashboard/productive_kpi_processed.csv
