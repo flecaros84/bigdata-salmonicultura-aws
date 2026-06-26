@@ -141,3 +141,161 @@ Al finalizar esta feature, el proyecto debe demostrar:
 Pendiente.
 
 Se completará después de ejecutar la implementación en AWS.
+
+---
+
+## 10. Resultado de implementación
+
+La feature `sagemaker-modelos-cloud` fue implementada correctamente.
+
+Se tomó el modelo generado previamente por los notebooks batch del proyecto y se preparó como artefacto compatible con AWS SageMaker.
+
+Modelo base utilizado:
+
+```text
+s3://bigdata-salmonicultura-fabian/models/low_growth_logistic_model.joblib
+```
+
+Artefacto SageMaker generado:
+
+```text
+s3://bigdata-salmonicultura-fabian/sagemaker/model-artifacts/low_growth_model.tar.gz
+```
+
+El empaquetado se realizó mediante el script:
+
+```text
+sagemaker/package_model.py
+```
+
+Resultado del empaquetado:
+
+```text
+Modelo descargado desde S3.
+Artefacto low_growth_model.tar.gz creado correctamente.
+Artefacto subido a S3 correctamente.
+```
+
+---
+
+## 11. Despliegue en SageMaker
+
+Se desplegó el modelo como endpoint de inferencia en tiempo real utilizando AWS SageMaker.
+
+Configuración utilizada:
+
+```text
+EndpointName: low-growth-endpoint-1782506140
+ModelName: low-growth-model-1782506140
+Rol: arn:aws:iam::601270941236:role/LabRole
+Instancia: ml.m5.large
+Framework: Scikit-learn 1.4-2
+Modelo S3: s3://bigdata-salmonicultura-fabian/sagemaker/model-artifacts/low_growth_model.tar.gz
+```
+
+El despliegue fue ejecutado mediante:
+
+```text
+sagemaker/deploy_endpoint.py
+```
+
+Resultado:
+
+```text
+Endpoint creado correctamente.
+```
+
+---
+
+## 12. Prueba de inferencia
+
+Se ejecutó una predicción de prueba contra el endpoint SageMaker utilizando el script:
+
+```text
+sagemaker/test_endpoint.py
+```
+
+Payload enviado:
+
+```json
+{
+  "feed_per_open_biomass": 0.296827,
+  "feed_per_fish": 0.002963,
+  "temperature_avg": 12.05714286,
+  "density_avg": 30.54454607,
+  "mortality_rate": 0.0000548,
+  "open_biomass": 754.6475011
+}
+```
+
+Respuesta del endpoint:
+
+```json
+{
+  "predictions": [0],
+  "probabilities": [0.01267890500889963]
+}
+```
+
+Interpretación:
+
+```text
+El modelo predijo clase 0, equivalente a no bajo crecimiento.
+La probabilidad estimada de bajo crecimiento fue aproximadamente 1,27%.
+```
+
+---
+
+## 13. Eliminación del endpoint
+
+Después de validar la inferencia, el endpoint fue eliminado para evitar consumo innecesario de recursos del laboratorio AWS.
+
+Script utilizado:
+
+```text
+sagemaker/delete_endpoint.py
+```
+
+Recursos eliminados:
+
+```text
+Endpoint: low-growth-endpoint-1782506140
+EndpointConfig: low-growth-endpoint-1782506140
+Modelo SageMaker: low-growth-model-1782506140
+```
+
+Validación final:
+
+```json
+{
+  "Endpoints": []
+}
+```
+
+Esto confirma que no quedaron endpoints activos asociados al modelo `low-growth`.
+
+---
+
+## 14. Resultado final de la feature
+
+La feature `sagemaker-modelos-cloud` queda completada.
+
+El proyecto demuestra que el modelo de machine learning generado en los notebooks puede ser preparado, empaquetado, desplegado y consumido desde AWS SageMaker mediante inferencia en tiempo real.
+
+Flujo validado:
+
+```text
+Notebook batch
+        ↓
+Modelo joblib en S3
+        ↓
+Empaquetado model.tar.gz
+        ↓
+SageMaker Model
+        ↓
+SageMaker Endpoint
+        ↓
+Predicción en la nube
+        ↓
+Eliminación del endpoint
+```
