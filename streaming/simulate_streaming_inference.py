@@ -37,14 +37,37 @@ def generate_raw_event(event_id: int) -> Dict[str, Any]:
     open_biomass = round(random.uniform(100.0, 4_500.0), 4)
     open_weight = round(open_biomass * 1000 / max(open_count, 1), 6)
 
-    feed_weight = round(open_biomass * random.uniform(0.001, 0.045), 6)
-    temperature_avg = round(random.uniform(6.5, 16.5), 6)
-    density_avg = round(random.uniform(5.0, 38.0), 6)
+    scenario = random.choices(
+        population=["normal", "risk"],
+        weights=[0.65, 0.35],
+        k=1,
+    )[0]
+
+    if scenario == "normal":
+        feed_per_biomass = random.uniform(0.18, 0.38)
+        temperature_avg = round(random.uniform(10.0, 14.0), 6)
+        density_avg = round(random.uniform(10.0, 26.0), 6)
+        mortality_factor = random.uniform(0.0001, 0.0008)
+    else:
+        feed_per_biomass = random.uniform(0.001, 0.08)
+        temperature_avg = round(random.choice([
+            random.uniform(6.5, 9.0),
+            random.uniform(14.5, 16.5),
+        ]), 6)
+        density_avg = round(random.uniform(26.0, 38.0), 6)
+        mortality_factor = random.uniform(0.001, 0.003)
+
+    feed_weight = round(open_biomass * feed_per_biomass, 6)
 
     live_days = random.randint(5, 7)
     fish_days = open_count * live_days
 
-    mortality_count = random.randint(0, max(1, int(open_count * 0.003)))
+    mortality_count = random.randint(
+        0,
+        max(1, int(open_count * mortality_factor)),
+    )
+
+
     harvest_count = random.randint(0, max(1, int(open_count * 0.002)))
     ship_out_count = random.randint(0, max(1, int(open_count * 0.001)))
     ship_in_count = random.randint(0, max(1, int(open_count * 0.001)))
@@ -63,6 +86,7 @@ def generate_raw_event(event_id: int) -> Dict[str, Any]:
         "Year": year_value,
         "Week": week_value,
         "Species": random.choice(SPECIES_VALUES),
+        "Scenario": scenario,
         "Year class": random.randint(year_value - 4, year_value),
         "Open Count": open_count,
         "Open Biomass": open_biomass,
