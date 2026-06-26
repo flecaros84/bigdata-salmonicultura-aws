@@ -1,3 +1,4 @@
+````markdown
 # Plan de entrega final AWS
 
 ## Objetivo
@@ -40,7 +41,7 @@ El procesamiento streaming se utiliza para simular datos nuevos de operación, t
 
 De esta forma, el modelo no se entrena continuamente con cada evento nuevo. En esta versión, el streaming se usa principalmente para inferencia. Los eventos generados pueden almacenarse para alimentar procesos futuros de análisis o reentrenamiento batch.
 
-Además, se incorpora una capa de orquestación end-to-end para ejecutar las etapas principales del proyecto en orden, registrar logs y dejar evidencia trazable de cada paso.
+Además, se incorpora una capa de orquestación end-to-end para ejecutar las etapas principales del proyecto en orden, registrar logs, generar un resumen JSON de ejecución y dejar evidencia trazable de cada paso.
 
 ---
 
@@ -77,9 +78,11 @@ Artefacto SageMaker en S3
         ↓
 Creación de modelo SageMaker
         ↓
-Endpoint SageMaker
+Endpoint SageMaker temporal
         ↓
 Predicción en la nube
+        ↓
+Eliminación de recursos temporales
 ```
 
 ```text
@@ -88,6 +91,8 @@ BLOQUE STREAMING / OPERACIONAL
 Simulador de datos
         ↓
 Eventos productivos simulados
+        ↓
+Escenarios normales y de riesgo
         ↓
 Transformación a features del modelo
         ↓
@@ -111,7 +116,7 @@ Resumen JSON de la corrida
         ↓
 Rutas S3 generadas
         ↓
-Resultados streaming
+Resultados streaming con carga incremental
         ↓
 Grafana
         ↓
@@ -227,16 +232,40 @@ Resultado esperado:
 * prueba de inferencia;
 * ejecución del simulador streaming;
 * almacenamiento de resultados en S3;
+* subida incremental de resultados streaming para demo Grafana;
 * eliminación del endpoint al finalizar;
 * generación de logs;
 * generación de resumen de ejecución en JSON;
-* registro de rutas S3 y artefactos generados.
+* registro de rutas S3 y artefactos generados;
+* limpieza automática de recursos temporales;
+* validación final de endpoints activos.
 
 Esta feature conecta los componentes ya construidos y permite demostrar el flujo completo del proyecto de forma ordenada.
 
+Evidencia validada:
+
+```text
+Run pipeline: run_20260626_223955
+Run streaming: run_20260626_224307
+Eventos simulados: 10
+Subida incremental: cada 5 eventos
+Endpoint temporal: low-growth-endpoint-1782513601
+Estado final SageMaker: sin endpoints activos
+```
+
+Rutas generadas:
+
+```text
+s3://bigdata-salmonicultura-fabian/pipeline_runs/run_20260626_223955/pipeline.log
+s3://bigdata-salmonicultura-fabian/pipeline_runs/run_20260626_223955/run_summary.json
+
+s3://bigdata-salmonicultura-fabian/streaming/inference_events/run_20260626_224307/inference_events.csv
+s3://bigdata-salmonicultura-fabian/streaming/inference_events/run_20260626_224307/inference_events.jsonl
+```
+
 Estado:
 
-* pendiente.
+* implementado.
 
 ---
 
@@ -282,7 +311,11 @@ Esta feature puede apoyarse en los logs y salidas del pipeline end-to-end.
 
 Estado:
 
-* pendiente.
+* parcial.
+
+Observación:
+
+El pipeline end-to-end ya incorpora validación de identidad AWS, validación de rutas S3, manejo de errores, logs, resumen JSON, limpieza de endpoint y trazabilidad de rutas generadas. Sin embargo, aún falta una feature específica para controles de calidad de datos, duplicados, registros inválidos y métricas de calidad por corrida.
 
 ---
 
@@ -326,12 +359,39 @@ Estado:
 [x] Crear simulador de datos streaming.
 [x] Ejecutar inferencia continua contra SageMaker.
 [x] Guardar resultados de simulación en S3.
-[ ] Crear pipeline end-to-end trazable.
-[ ] Generar logs y resumen JSON de ejecución.
+[x] Crear pipeline end-to-end trazable.
+[x] Generar logs y resumen JSON de ejecución.
+[x] Subir resultados streaming incrementalmente para demo Grafana.
 [ ] Construir dashboard en Grafana.
-[ ] Agregar controles de calidad y trazabilidad.
+[~] Agregar controles de calidad y trazabilidad.
 [ ] Actualizar documentación final.
 ```
+
+---
+
+## Próximo bloque de trabajo
+
+El siguiente bloque técnico recomendado es:
+
+```text
+feature/grafana-dashboard-tiempo-real
+```
+
+Objetivo del siguiente bloque:
+
+```text
+Construir una visualización operacional en Grafana usando los resultados streaming
+generados por el pipeline end-to-end.
+```
+
+La visualización debe enfocarse en:
+
+* cantidad de eventos simulados;
+* probabilidad de bajo crecimiento;
+* predicciones por escenario normal o de riesgo;
+* predicciones por centro o unidad;
+* evolución temporal de la probabilidad;
+* indicadores o alertas visuales para eventos con predicción de bajo crecimiento.
 
 ---
 
@@ -360,4 +420,4 @@ Dashboard Grafana con métricas operacionales
 ```
 
 Además, cada etapa debe contar con evidencia mínima de ejecución, ya sea mediante capturas, logs, archivos generados, rutas S3 o salidas documentadas.
-
+````
